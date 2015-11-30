@@ -1,0 +1,14 @@
+{
+  "name": "api-ai-slack-bot",
+  "version": "1.0.0",
+  "description": "API.AI Slack Bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Danil Skachkov <danil.skachkov@speaktoit.com> (https://api.ai)",
+  "license": "ISC",
+  "dependencies": {
+    "slackbots": "^0.5.0"
+  }
+}
