@@ -9,6 +9,7 @@
   "author": "Danil Skachkov <danil.skachkov@speaktoit.com> (https://api.ai)",
   "license": "ISC",
   "dependencies": {
+    "apiai": "^1.0.3",
     "slackbots": "^0.5.0"
   }
 }
