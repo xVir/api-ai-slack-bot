@@ -2,8 +2,11 @@
 
 var SlackBot = require('slackbots');
 var apiai = require('apiai');
+var uuid = require('node-uuid');
 
 var apiAiService = apiai("383b9a55088043bd846a321f73882554", "cb9693af-85ce-4fbf-844a-5563722fc27f");
+
+var sessionId = uuid.v1();
 
 // create a bot
 var bot = new SlackBot({
@@ -25,14 +28,14 @@ function callApiAi(messageData){
     {
         var channel = messageData.channel;
 
-        var request = apiAiService.textRequest(requestText);
+        var request = apiAiService.textRequest(requestText, {sessionId: sessionId});
         request.on('response', function(response) {
             console.log(response);
 
             var responseText = response.result.fulfillment.speech;
             if (responseText)
             {
-                bot.postMessage(channel,requestText, {}).then(
+                bot.postMessage(channel,responseText, {}).then(
                     function(result){
                         console.log("success: " + result);
                     }
@@ -50,7 +53,6 @@ function callApiAi(messageData){
         });
 
         request.end();
-
 
     }
 }
