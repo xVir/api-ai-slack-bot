@@ -11,6 +11,9 @@ var sessionId = uuid.v1();
 var BOT_NAME = "apiai";
 var botSlackId;
 
+var sessionIds = {};
+sessionIds["sessionid"] = "asdfasdf";
+
 // create a bot
 var bot = new SlackBot({
     token: process.argv[2], // Add a bot https://my.slack.com/services/new/bot and put the token
@@ -25,12 +28,17 @@ function isDirect(messageData) {
     return false;
 }
 
-function callApiAi(messageData) {
+function answerInDirect(messageData) {
     var requestText = messageData.text;
     if (requestText) {
         var channel = messageData.channel;
 
-        var request = apiAiService.textRequest(requestText, {sessionId: sessionId});
+        if (!(channel in sessionIds)) {
+            sessionIds[channel] = uuid.v1();
+        }
+
+        var request = apiAiService.textRequest(requestText, { sessionId: sessionIds[channel] });
+
         request.on('response', function (response) {
             console.log(response);
 
@@ -121,7 +129,7 @@ bot.on('message', function (data) {
         else {
             // on direct messages we should answer always
             if (isDirect(data)) {
-                callApiAi(data);
+                answerInDirect(data);
             }
             else {
                 answerInChannel(data);
