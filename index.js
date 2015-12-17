@@ -1,22 +1,27 @@
+// Module must be started with parameters
+//
+//  --accesskey="api.ai client access key"
+//  --subscriptionkey="api.ai subscription key"
+//  --slackkey="slack bot key"
+
+
 'use strict';
 
 var SlackBot = require('slackbots');
 var apiai = require('apiai');
 var uuid = require('node-uuid');
+var argv = require('minimist')(process.argv.slice(2));
 
-var apiAiService = apiai("383b9a55088043bd846a321f73882554", "cb9693af-85ce-4fbf-844a-5563722fc27f");
+var apiAiService = apiai(argv.accesskey, argv.subscriptionkey);
 
-var sessionId = uuid.v1();
-
-var BOT_NAME = "apiai";
+var BOT_NAME = "SlackNanny";
 var botSlackId;
 
 var sessionIds = {};
-sessionIds["sessionid"] = "asdfasdf";
 
 // create a bot
 var bot = new SlackBot({
-    token: process.argv[2], // Add a bot https://my.slack.com/services/new/bot and put the token
+    token: argv.slackkey, // Add a bot https://my.slack.com/services/new/bot and put the token
     name: BOT_NAME
 });
 
@@ -37,7 +42,7 @@ function answerInDirect(messageData) {
             sessionIds[channel] = uuid.v1();
         }
 
-        var request = apiAiService.textRequest(requestText, { sessionId: sessionIds[channel] });
+        var request = apiAiService.textRequest(requestText, {sessionId: sessionIds[channel]});
 
         request.on('response', function (response) {
             console.log(response);
@@ -68,39 +73,37 @@ function answerInDirect(messageData) {
 
 function answerInChannel(messageData) {
     var requestText = messageData.text;
+    var channel = messageData.channel;
 
-    if (botSlackId) {
-        var botId = "<" + "@" + botSlackId + ">";
-        if (requestText.indexOf(botId) != -1) {
-            var channel = messageData.channel;
-            requestText = requestText.replace(botId, "");
-
-            var request = apiAiService.textRequest(requestText, {sessionId: sessionId});
-            request.on('response', function (response) {
-                console.log(response);
-
-                var responseText = response.result.fulfillment.speech;
-                if (responseText) {
-                    bot.postMessage(channel, responseText, {}).then(
-                        function (result) {
-                            console.log("success: " + result);
-                        }
-                    ).fail(
-                        function (result) {
-                            console.log("fail: " + result);
-                        }
-                    );
-                }
-
-            });
-
-            request.on('error', function (error) {
-                console.log(error);
-            });
-
-            request.end();
-        }
+    if (!(channel in sessionIds)) {
+        sessionIds[channel] = uuid.v1();
     }
+
+    var request = apiAiService.textRequest(requestText, {sessionId: sessionIds[channel]});
+    request.on('response', function (response) {
+        console.log(response);
+
+        var responseText = response.result.fulfillment.speech;
+        if (responseText) {
+            bot.postMessage(channel, responseText, {}).then(
+                function (result) {
+                    console.log("success: " + result);
+                }
+            ).fail(
+                function (result) {
+                    console.log("fail: " + result);
+                }
+            );
+        }
+    });
+
+    request.on('error', function (error) {
+        console.log(error);
+    });
+
+    request.end();
+
+
 }
 
 bot.on('start', function () {
@@ -115,7 +118,7 @@ bot.on('start', function () {
     });
 
     // define channel, where bot exist. You can adjust it there https://my.slack.com/services
-    bot.postMessageToChannel('general', 'Hello from API.AI!', params, function (result) {
+    bot.postMessageToChannel('test-bot', 'Hello from API.AI!', params, function (result) {
     });
 });
 
@@ -123,7 +126,7 @@ bot.on('message', function (data) {
     // all ingoing events https://api.slack.com/rtm
 
     if (data.type == "message") {
-        if (data.username == "apiai") {
+        if (data.username == BOT_NAME) {
             // message from bot can be skipped
         }
         else {
