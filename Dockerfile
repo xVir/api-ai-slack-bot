@@ -1,8 +1,6 @@
-FROM ubuntu:14.04
+FROM node:5.3.0
 
 MAINTAINER xVir <danil.skachkov@speaktoit.com>
-
-RUN apt-get update && apt-get install -y npm
 
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
