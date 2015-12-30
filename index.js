@@ -29,15 +29,12 @@ var bot = controller.spawn({
 controller.hears(['.*'],['direct_message','direct_mention','mention', 'ambient'], function(bot,message) {
 
     console.log(message.text);
-    //console.log(message);
 
     if (message.type == "message") {
         if (message.user == bot.identity.id) {
             // message from bot can be skipped
         }
         else {
-            // on direct messages we should answer always
-
             var requestText = message.text;
             var channel = message.channel;
 
@@ -48,7 +45,7 @@ controller.hears(['.*'],['direct_message','direct_mention','mention', 'ambient']
             var request = apiAiService.textRequest(requestText, { sessionId: sessionIds[channel] });
 
             request.on('response', function (response) {
-                console.log(response.status);
+                console.log(response);
 
                 if (response.result) {
                     var responseText = response.result.fulfillment.speech;
