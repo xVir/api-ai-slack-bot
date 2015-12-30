@@ -10,8 +10,8 @@
   "license": "ISC",
   "dependencies": {
     "apiai": "^1.0.3",
+    "botkit": "0.0.5",
     "minimist": "^1.2.0",
-    "node-uuid": "^1.4.7",
-    "slackbots": "^0.5.0"
+    "node-uuid": "^1.4.7"
   }
 }
