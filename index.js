@@ -23,10 +23,10 @@ var controller = Botkit.slackbot({
 });
 
 var bot = controller.spawn({
-             token: argv.slackkey
-          }).startRTM();
+    token: argv.slackkey
+}).startRTM();
 
-controller.hears(['.*'],['direct_message','direct_mention','mention', 'ambient'], function(bot,message) {
+controller.hears(['.*'], ['direct_message', 'direct_mention', 'mention', 'ambient'], function (bot, message) {
 
     console.log(message.text);
 
@@ -37,15 +37,23 @@ controller.hears(['.*'],['direct_message','direct_mention','mention', 'ambient']
         else {
             var requestText = message.text;
             var channel = message.channel;
+            var messageType = message.event;
+
+            console.log(messageType);
 
             if (!(channel in sessionIds)) {
                 sessionIds[channel] = uuid.v1();
             }
 
-            var request = apiAiService.textRequest(requestText, { sessionId: sessionIds[channel] });
+            var request = apiAiService.textRequest(requestText,
+                {
+                    sessionId: sessionIds[channel],
+                    contexts: [{name: messageType, lifespan: 1}]
+                });
 
             request.on('response', function (response) {
                 console.log(response);
+                console.log(response.result.contexts);
 
                 if (response.result) {
                     var responseText = response.result.fulfillment.speech;
