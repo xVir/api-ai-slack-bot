@@ -30,7 +30,7 @@ controller.hears(['.*'], ['direct_message', 'direct_mention', 'mention', 'ambien
 
     console.log(message.text);
 
-    if (message.type == "message") {
+    if (message.type == 'message') {
         if (message.user == bot.identity.id) {
             // message from bot can be skipped
         }
@@ -53,12 +53,37 @@ controller.hears(['.*'], ['direct_message', 'direct_mention', 'mention', 'ambien
 
             request.on('response', function (response) {
                 console.log(response);
-                console.log(response.result.contexts);
 
                 if (response.result) {
                     var responseText = response.result.fulfillment.speech;
-                    if (responseText) {
-                        bot.reply(message, responseText);
+                    var action = response.result.action;
+                    console.log(action);
+
+                    if (action) {
+                        if (messageType == 'ambient')
+                        {
+                            console.log('ambient, check for action type');
+
+                            if (action.indexOf('smalltalk.') == 0 ||
+                                action.indexOf('translate.') == 0 ||
+                                action.indexOf('calculator.') == 0) {
+
+                                console.log('action for ambient');
+
+                                if (responseText) {
+                                    bot.reply(message, responseText);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            console.log('not ambient, post answer');
+
+                            if (responseText) {
+                                bot.reply(message, responseText);
+                            }
+                        }
+
                     }
                 }
             });
