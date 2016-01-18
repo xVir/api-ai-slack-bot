@@ -39,8 +39,12 @@ controller.hears(['.*'], ['direct_message', 'direct_mention', 'mention', 'ambien
         if (message.user == bot.identity.id) {
             // message from bot can be skipped
         }
+        else if (message.text.indexOf("<@U") == 0) {
+            // skip other users direct mentions
+        }
         else {
             var requestText = decoder.decode(message.text);
+
             var channel = message.channel;
             var messageType = message.event;
 
