@@ -13,6 +13,9 @@ var apiai = require('apiai');
 var uuid = require('node-uuid');
 var argv = require('minimist')(process.argv.slice(2));
 
+var Entities = require('html-entities').XmlEntities;
+var decoder = new Entities();
+
 var apiAiService = apiai(argv.accesskey, argv.subscriptionkey);
 
 var sessionIds = {};
@@ -35,7 +38,7 @@ controller.hears(['.*'], ['direct_message', 'direct_mention', 'mention', 'ambien
             // message from bot can be skipped
         }
         else {
-            var requestText = message.text;
+            var requestText = decoder.decode(message.text);
             var channel = message.channel;
             var messageType = message.event;
 
