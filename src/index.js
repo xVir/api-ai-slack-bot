@@ -3,6 +3,7 @@
 //  --accesskey="api.ai client access key"
 //  --subscriptionkey="api.ai subscription key"
 //  --slackkey="slack bot key"
+//  --filterambient="true or false to filter ambient messages processing (not all)"
 //
 
 'use strict';
