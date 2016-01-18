@@ -56,8 +56,7 @@ controller.hears(['.*'], ['direct_message', 'direct_mention', 'mention', 'ambien
 
             var request = apiAiService.textRequest(requestText,
                 {
-                    sessionId: sessionIds[channel],
-                    contexts: [{name: messageType, lifespan: 1}]
+                    sessionId: sessionIds[channel]
                 });
 
             request.on('response', function (response) {
@@ -66,35 +65,33 @@ controller.hears(['.*'], ['direct_message', 'direct_mention', 'mention', 'ambien
                 if (response.result) {
                     var responseText = response.result.fulfillment.speech;
                     var action = response.result.action;
-                    console.log(action);
+                    var actionIncomplete = response.result.actionIncomplete;
 
-                    if (action) {
-                        if (messageType == 'ambient' && filterAmbient)
-                        {
-                            console.log('ambient, check for action type');
+                    console.log("a: " + action + " incomplete: " + actionIncomplete);
 
-                            if (action.indexOf('smalltalk.') == 0 ||
-                                action.indexOf('translate.') == 0 ||
-                                action.indexOf('wisdom.') == 0 ||
-                                action.indexOf('entertainment.') == 0 ||
-                                action.indexOf('weather.') == 0) {
+                    if (messageType == 'ambient' && filterAmbient) {
+                        console.log('ambient, check for action type');
 
-                                console.log('action for ambient');
+                        if (action &&
+                            action.indexOf('smalltalk.') == 0 ||
+                            action.indexOf('translate.') == 0 ||
+                            action.indexOf('wisdom.') == 0 ||
+                            action.indexOf('entertainment.') == 0 ||
+                            action.indexOf('weather.') == 0) {
 
-                                if (responseText) {
-                                    bot.reply(message, responseText);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            console.log('not ambient, post answer');
+                            console.log('action for ambient');
 
                             if (responseText) {
                                 bot.reply(message, responseText);
                             }
                         }
+                    }
+                    else {
+                        console.log('not ambient, post answer');
 
+                        if (responseText) {
+                            bot.reply(message, responseText);
+                        }
                     }
                 }
             });
