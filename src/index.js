@@ -17,6 +17,7 @@ var Entities = require('html-entities').XmlEntities;
 var decoder = new Entities();
 
 var apiAiService = apiai(argv.accesskey, argv.subscriptionkey);
+var filterAmbient = (argv.filterambient === 'true');
 
 var sessionIds = {};
 
@@ -63,13 +64,15 @@ controller.hears(['.*'], ['direct_message', 'direct_mention', 'mention', 'ambien
                     console.log(action);
 
                     if (action) {
-                        if (messageType == 'ambient')
+                        if (messageType == 'ambient' && filterAmbient)
                         {
                             console.log('ambient, check for action type');
 
                             if (action.indexOf('smalltalk.') == 0 ||
                                 action.indexOf('translate.') == 0 ||
-                                action.indexOf('calculator.') == 0) {
+                                action.indexOf('wisdom.') == 0 ||
+                                action.indexOf('entertainment.') == 0 ||
+                                action.indexOf('weather.') == 0) {
 
                                 console.log('action for ambient');
 
