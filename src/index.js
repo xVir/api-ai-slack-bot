@@ -31,6 +31,18 @@ var bot = controller.spawn({
     token: argv.slackkey
 }).startRTM();
 
+function isDefined(obj) {
+    if(typeof obj == 'undefined') {
+        return false;
+    }
+
+    if (!obj) {
+        return false;
+    }
+
+    return obj != null;
+}
+
 controller.hears(['.*'], ['direct_message', 'direct_mention', 'mention', 'ambient'], function (bot, message) {
 
     console.log(message.text);
@@ -62,7 +74,7 @@ controller.hears(['.*'], ['direct_message', 'direct_mention', 'mention', 'ambien
             request.on('response', function (response) {
                 console.log(response);
 
-                if (response.result) {
+                if (isDefined(response.result)) {
                     var responseText = response.result.fulfillment.speech;
                     var action = response.result.action;
                     var actionIncomplete = response.result.actionIncomplete;
@@ -72,7 +84,7 @@ controller.hears(['.*'], ['direct_message', 'direct_mention', 'mention', 'ambien
                     if (messageType == 'ambient' && filterAmbient) {
                         console.log('ambient, check for action type');
 
-                        if (action &&
+                        if (isDefined(action) &&
                             action.indexOf('smalltalk.') == 0 ||
                             action.indexOf('translate.') == 0 ||
                             action.indexOf('wisdom.') == 0 ||
@@ -81,7 +93,7 @@ controller.hears(['.*'], ['direct_message', 'direct_mention', 'mention', 'ambien
 
                             console.log('action for ambient');
 
-                            if (responseText) {
+                            if (isDefined(responseText)) {
                                 bot.reply(message, responseText);
                             }
                         }
@@ -89,7 +101,7 @@ controller.hears(['.*'], ['direct_message', 'direct_mention', 'mention', 'ambien
                     else {
                         console.log('not ambient, post answer');
 
-                        if (responseText) {
+                        if (isDefined(responseText)) {
                             bot.reply(message, responseText);
                         }
                     }
