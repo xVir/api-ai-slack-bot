@@ -85,10 +85,11 @@ controller.hears(['.*'], ['direct_message', 'direct_mention', 'mention', 'ambien
                         console.log('ambient, check for action type');
 
                         if (isDefined(action) &&
-                            action.indexOf('smalltalk.') == 0 ||
+                            action.indexOf('maps.') == 0 ||
                             action.indexOf('translate.') == 0 ||
                             action.indexOf('wisdom.') == 0 ||
                             action.indexOf('entertainment.') == 0 ||
+                            action.indexOf('news.') == 0 ||
                             action.indexOf('weather.') == 0) {
 
                             console.log('action for ambient');
