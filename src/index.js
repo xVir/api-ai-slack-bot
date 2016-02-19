@@ -3,26 +3,24 @@
 //  --accesskey="api.ai client access key"
 //  --subscriptionkey="api.ai subscription key"
 //  --slackkey="slack bot key"
-//  --filterambient="true or false to filter ambient messages processing (not all)"
 //
 
 'use strict';
 
-var Botkit = require('botkit');
+const Botkit = require('botkit');
 
-var apiai = require('apiai');
-var uuid = require('node-uuid');
-var argv = require('minimist')(process.argv.slice(2));
+const apiai = require('apiai');
+const uuid = require('node-uuid');
+const argv = require('minimist')(process.argv.slice(2));
 
-var Entities = require('html-entities').XmlEntities;
-var decoder = new Entities();
+const Entities = require('html-entities').XmlEntities;
+const decoder = new Entities();
 
-var apiAiService = apiai(argv.accesskey, argv.subscriptionkey);
-var filterAmbient = (argv.filterambient === 'true');
+const apiAiService = apiai(argv.accesskey, argv.subscriptionkey);
 
 var sessionIds = {};
 
-var controller = Botkit.slackbot({
+const controller = Botkit.slackbot({
     debug: false
     //include "log: false" to disable logging
 });
@@ -77,35 +75,11 @@ controller.hears(['.*'], ['direct_message', 'direct_mention', 'mention', 'ambien
                 if (isDefined(response.result)) {
                     var responseText = response.result.fulfillment.speech;
                     var action = response.result.action;
-                    var actionIncomplete = response.result.actionIncomplete;
 
-                    console.log("a: " + action + " incomplete: " + actionIncomplete);
-
-                    if (messageType == 'ambient' && filterAmbient) {
-                        console.log('ambient, check for action type');
-
-                        if (isDefined(action) &&
-                            action.indexOf('maps.') == 0 ||
-                            action.indexOf('translate.') == 0 ||
-                            action.indexOf('wisdom.') == 0 ||
-                            action.indexOf('entertainment.') == 0 ||
-                            action.indexOf('news.') == 0 ||
-                            action.indexOf('weather.') == 0) {
-
-                            console.log('action for ambient');
-
-                            if (isDefined(responseText)) {
-                                bot.reply(message, responseText);
-                            }
-                        }
+                    if (isDefined(responseText)) {
+                        bot.reply(message, responseText);
                     }
-                    else {
-                        console.log('not ambient, post answer');
 
-                        if (isDefined(responseText)) {
-                            bot.reply(message, responseText);
-                        }
-                    }
                 }
             });
 
