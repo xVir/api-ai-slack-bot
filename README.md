@@ -23,3 +23,5 @@ docker run -d --name slack_bot \
 ```
 
 To start images in interactive mode change `-d` parameter to `-it`
+
+Also, you can add `filterambient` variable to control bot behaviour on ambient messages.
