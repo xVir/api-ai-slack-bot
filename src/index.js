@@ -49,16 +49,22 @@ controller.hears(['.*'], ['direct_message', 'direct_mention', 'mention', 'ambien
         if (message.user == bot.identity.id) {
             // message from bot can be skipped
         }
-        else if (message.text.indexOf("<@U") == 0) {
+        else if (message.text.indexOf("<@U") == 0 && message.text.indexOf(bot.identity.id) == -1) {
             // skip other users direct mentions
         }
         else {
             var requestText = decoder.decode(message.text);
+            requestText = requestText.replace("’", "'");
 
             var channel = message.channel;
             var messageType = message.event;
+            var botId = "<@" + bot.identity.id + ">";
 
             console.log(messageType);
+
+            if (requestText.indexOf(botId) > -1) {
+                requestText = requestText.replace(botId, '');
+            }
 
             if (!(channel in sessionIds)) {
                 sessionIds[channel] = uuid.v1();
