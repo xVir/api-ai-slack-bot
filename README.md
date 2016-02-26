@@ -1,5 +1,3 @@
-# api-ai-slack-bot
-
 # Api.ai Slack Integration
 
 ## Overview
