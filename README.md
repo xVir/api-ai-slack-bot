@@ -1,5 +1,6 @@
 # api-ai-slack-bot
-Api.ai Slack Integration
+
+# Api.ai Slack Integration
 
 ## Overview
 
@@ -62,11 +63,11 @@ where `slack_bot` is the container name from the `run` command.
 
 If you want to customize your bot behavior, follow the steps below.
 
-1) Clone the repository https://github.com/xVir/api-ai-slack-bot 
+1. Clone the repository https://github.com/xVir/api-ai-slack-bot 
 
-2) Add your code to `index.js`
+2. Change the code to `index.js`
 
-3) In the Docker, use the `run` command specifying the full path to the directory containing the `index.js` file:
+3. In the Docker, use the `run` command specifying the full path to the directory containing the `index.js` file:
 
 ```sh
 docker run -d --name slack_bot \
