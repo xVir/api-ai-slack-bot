@@ -1,8 +1,8 @@
-// Module must be started with parameters
+// Module must be started with environment variables
 //
-//  --accesskey="api.ai client access key"
-//  --subscriptionkey="api.ai subscription key"
-//  --slackkey="slack bot key"
+//  accesskey="api.ai client access key"
+//  subscriptionkey="api.ai subscription key"
+//  slackkey="slack bot key"
 //
 
 'use strict';
@@ -11,12 +11,15 @@ const Botkit = require('botkit');
 
 const apiai = require('apiai');
 const uuid = require('node-uuid');
-const argv = require('minimist')(process.argv.slice(2));
 
 const Entities = require('html-entities').XmlEntities;
 const decoder = new Entities();
 
-const apiAiService = apiai(argv.accesskey, argv.subscriptionkey);
+const apiAiAccessToken = process.env.accesstoken;
+const apiAiSubscriptionKey = process.env.subscriptionkey;
+const slackBotKey = process.env.slackkey;
+
+const apiAiService = apiai(apiAiAccessToken, apiAiSubscriptionKey);
 
 var sessionIds = {};
 
@@ -26,7 +29,7 @@ const controller = Botkit.slackbot({
 });
 
 var bot = controller.spawn({
-    token: argv.slackkey
+    token: slackBotKey
 }).startRTM();
 
 function isDefined(obj) {

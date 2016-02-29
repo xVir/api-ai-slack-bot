@@ -8,6 +8,8 @@ Source code location: https://github.com/xVir/api-ai-slack-bot
 
 Docker image location: https://hub.docker.com/r/xvir/api-ai-slack-bot/
 
+[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+
 To launch a bot, you’ll need the Linux OS. To launch it in other operating systems, use [Docker Toolbox](https://www.docker.com/products/docker-toolbox).
 
 Api.ai documentation:
@@ -31,7 +33,7 @@ To launch the bot, use one of the following commands:
 
 ```sh
 docker run -d --name slack_bot \
-           -e accesskey="api.ai access key" \
+           -e accesstoken="api.ai access key" \
            -e subscriptionkey="api.ai subscription key" \
            -e slackkey="slack bot key" \
            xvir/api-ai-slack-bot
@@ -41,7 +43,7 @@ docker run -d --name slack_bot \
 
 ```sh
 docker run -it --name slack_bot \
-           -e accesskey="api.ai access key" \
+           -e accesstoken="api.ai access key" \
            -e subscriptionkey="api.ai subscription key" \
            -e slackkey="slack bot key" \
            xvir/api-ai-slack-bot
@@ -69,7 +71,7 @@ If you want to customize your bot behavior, follow the steps below.
 
 ```sh
 docker run -d --name slack_bot \
-           -e accesskey="api.ai access key" \
+           -e accesstoken="api.ai access key" \
            -e subscriptionkey="api.ai subscription key" \
            -e slackkey="slack bot key" \
            -v /full/path/to/your/src:/usr/app/src \
