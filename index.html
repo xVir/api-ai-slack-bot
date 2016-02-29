@@ -20,15 +20,135 @@
 
     <section class="main-content">
       <h1>
-<a id="api-ai-slack-bot" class="anchor" href="#api-ai-slack-bot" aria-hidden="true"><span class="octicon octicon-link"></span></a>Api Ai Slack Bot</h1>
+<a id="apiai-slack-integration" class="anchor" href="#apiai-slack-integration" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Api.ai Slack Integration</h1>
 
-<p>The project makes it easy to integrate API.AI service with Slack</p>
+<h2>
+<a id="overview" class="anchor" href="#overview" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Overview</h2>
 
-<p>List of bots:</p>
-<div>Nanny Bot</div>
-<a href="https://slack.com/oauth/authorize?scope=bot&client_id=15612127732.18844182022">
-  <img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" 
-  srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x"></a>
+<p>Api.ai Slack integration allows you to create Slack bots with natural language understanding based on Api.ai technology.</p>
+
+<p>Source code location: <a href="https://github.com/xVir/api-ai-slack-bot">https://github.com/xVir/api-ai-slack-bot</a></p>
+
+<p>Docker image location: <a href="https://hub.docker.com/r/xvir/api-ai-slack-bot/">https://hub.docker.com/r/xvir/api-ai-slack-bot/</a></p>
+
+<p>To launch a bot, you’ll need the Linux OS. To launch it in other operating systems, use <a href="https://www.docker.com/products/docker-toolbox">Docker Toolbox</a>.</p>
+
+<p>Api.ai documentation:</p>
+
+<ul>
+<li><a href="https://docs.api.ai/docs/get-started#step-1-create-agent">How to create an Api.ai agent</a></li>
+<li><a href="https://docs.api.ai/docs/authentication">How to obtain Api.ai authentication keys</a></li>
+</ul>
+
+<p>You’ll need 3 keys:</p>
+
+<ul>
+<li>client access token for Api.ai</li>
+<li>subscription key for Api.ai</li>
+<li>Slack bot API token</li>
+</ul>
+
+<p>To obtain a Slack bot API token, create a new bot integration here: <a href="https://slack.com/apps/A0F7YS25R-bots">https://slack.com/apps/A0F7YS25R-bots</a>.</p>
+
+<h2>
+<a id="bot-launch" class="anchor" href="#bot-launch" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Bot Launch</h2>
+
+<p>To launch the bot, use one of the following commands:</p>
+
+<p><strong>For background launch mode (-d parameter):</strong></p>
+
+<div class="highlight highlight-source-shell"><pre>docker run -d --name slack_bot \
+           -e accesskey=<span class="pl-s"><span class="pl-pds">"</span>api.ai access key<span class="pl-pds">"</span></span> \
+           -e subscriptionkey=<span class="pl-s"><span class="pl-pds">"</span>api.ai subscription key<span class="pl-pds">"</span></span> \
+           -e slackkey=<span class="pl-s"><span class="pl-pds">"</span>slack bot key<span class="pl-pds">"</span></span> \
+           xvir/api-ai-slack-bot</pre></div>
+
+<p><strong>For interactive launch mode (-it parameter):</strong></p>
+
+<div class="highlight highlight-source-shell"><pre>docker run -it --name slack_bot \
+           -e accesskey=<span class="pl-s"><span class="pl-pds">"</span>api.ai access key<span class="pl-pds">"</span></span> \
+           -e subscriptionkey=<span class="pl-s"><span class="pl-pds">"</span>api.ai subscription key<span class="pl-pds">"</span></span> \
+           -e slackkey=<span class="pl-s"><span class="pl-pds">"</span>slack bot key<span class="pl-pds">"</span></span> \
+           xvir/api-ai-slack-bot</pre></div>
+
+<p>To stop the bot from running in the interactive mode, press CTRL+C.</p>
+
+<p>In the background mode, you can control the bot’s state via simple commands:</p>
+
+<ul>
+<li><code>docker start slack_bot</code></li>
+<li>
+<code>docker stop slack_bot</code>,</li>
+</ul>
+
+<p>where <code>slack_bot</code> is the container name from the <code>run</code> command.</p>
+
+<h2>
+<a id="custom-bot-launch" class="anchor" href="#custom-bot-launch" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Custom Bot Launch</h2>
+
+<p>If you want to customize your bot behavior, follow the steps below.</p>
+
+<ol>
+<li><p>Clone the repository <a href="https://github.com/xVir/api-ai-slack-bot">https://github.com/xVir/api-ai-slack-bot</a> </p></li>
+<li><p>Change the code to <code>index.js</code></p></li>
+<li><p>In the Docker, use the <code>run</code> command specifying the full path to the directory containing the <code>index.js</code> file:</p></li>
+</ol>
+
+<div class="highlight highlight-source-shell"><pre>docker run -d --name slack_bot \
+           -e accesskey=<span class="pl-s"><span class="pl-pds">"</span>api.ai access key<span class="pl-pds">"</span></span> \
+           -e subscriptionkey=<span class="pl-s"><span class="pl-pds">"</span>api.ai subscription key<span class="pl-pds">"</span></span> \
+           -e slackkey=<span class="pl-s"><span class="pl-pds">"</span>slack bot key<span class="pl-pds">"</span></span> \
+           -v /full/path/to/your/src:/usr/app/src \
+           xvir/api-ai-slack-bot</pre></div>
+
+<h2>
+<a id="code-notes" class="anchor" href="#code-notes" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Code Notes</h2>
+
+<p>Bot implementation is based on the Slack Botkit: <a href="https://github.com/howdyai/botkit">https://github.com/howdyai/botkit</a>.</p>
+
+<p>Message processing is done by the following code:</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-smi">controller</span>.<span class="pl-en">hears</span>([<span class="pl-s"><span class="pl-pds">'</span>.*<span class="pl-pds">'</span></span>],[<span class="pl-s"><span class="pl-pds">'</span>direct_message<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>direct_mention<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>mention<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>ambient<span class="pl-pds">'</span></span>], <span class="pl-k">function</span>(<span class="pl-smi">bot</span>,<span class="pl-smi">message</span>) {
+    <span class="pl-en">console</span>.<span class="pl-c1">log</span>(<span class="pl-smi">message</span>.<span class="pl-c1">text</span>);
+    <span class="pl-k">if</span> (<span class="pl-smi">message</span>.<span class="pl-c1">type</span> <span class="pl-k">==</span> <span class="pl-s"><span class="pl-pds">"</span>message<span class="pl-pds">"</span></span>) {
+        <span class="pl-k">if</span> (<span class="pl-smi">message</span>.<span class="pl-smi">user</span> <span class="pl-k">==</span> <span class="pl-smi">bot</span>.<span class="pl-smi">identity</span>.<span class="pl-c1">id</span>) {
+            <span class="pl-c">// message from bot can be skipped</span>
+        }
+        <span class="pl-k">else</span> {
+            <span class="pl-k">var</span> requestText <span class="pl-k">=</span> <span class="pl-smi">message</span>.<span class="pl-c1">text</span>;
+            <span class="pl-k">var</span> channel <span class="pl-k">=</span> <span class="pl-smi">message</span>.<span class="pl-smi">channel</span>;
+            <span class="pl-k">if</span> (<span class="pl-k">!</span>(channel <span class="pl-k">in</span> sessionIds)) {
+                sessionIds[channel] <span class="pl-k">=</span> <span class="pl-smi">uuid</span>.<span class="pl-en">v1</span>();
+            }
+            <span class="pl-k">var</span> request <span class="pl-k">=</span> <span class="pl-smi">apiAiService</span>.<span class="pl-en">textRequest</span>(requestText, { sessionId<span class="pl-k">:</span> sessionIds[channel] });
+            <span class="pl-smi">request</span>.<span class="pl-en">on</span>(<span class="pl-s"><span class="pl-pds">'</span>response<span class="pl-pds">'</span></span>, <span class="pl-k">function</span> (<span class="pl-smi">response</span>) {
+                <span class="pl-en">console</span>.<span class="pl-c1">log</span>(response);
+                <span class="pl-k">if</span> (<span class="pl-smi">response</span>.<span class="pl-smi">result</span>) {
+                    <span class="pl-k">var</span> responseText <span class="pl-k">=</span> <span class="pl-smi">response</span>.<span class="pl-smi">result</span>.<span class="pl-smi">fulfillment</span>.<span class="pl-smi">speech</span>;
+                    <span class="pl-k">if</span> (responseText) {
+                        <span class="pl-smi">bot</span>.<span class="pl-en">reply</span>(message, responseText);
+                    }
+                }
+            });
+            <span class="pl-smi">request</span>.<span class="pl-en">on</span>(<span class="pl-s"><span class="pl-pds">'</span>error<span class="pl-pds">'</span></span>, <span class="pl-k">function</span> (<span class="pl-smi">error</span>) {
+                <span class="pl-en">console</span>.<span class="pl-c1">log</span>(error);
+            });
+            <span class="pl-smi">request</span>.<span class="pl-en">end</span>();
+        }
+    }
+});</pre></div>
+
+<p>This code extracts the text from each message:</p>
+
+<p><code>var requestText = message.text;</code></p>
+
+<p>And sends it to Api.ai:</p>
+
+<p><code>var request = apiAiService.textRequest(requestText, { sessionId: sessionIds[channel] });</code></p>
+
+<p>If a non-empty response is received from Api.ai, the bot will respond with the received text:</p>
+
+<p><code>bot.reply(message, responseText);</code></p>
 
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/xVir/api-ai-slack-bot">ApiAi Slack Bot</a> is maintained by <a href="https://github.com/xVir">xVir</a>.</span>
