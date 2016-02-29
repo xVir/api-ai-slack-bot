@@ -33,7 +33,7 @@ var bot = controller.spawn({
 }).startRTM();
 
 function isDefined(obj) {
-    if(typeof obj == 'undefined') {
+    if (typeof obj == 'undefined') {
         return false;
     }
 
@@ -46,57 +46,64 @@ function isDefined(obj) {
 
 controller.hears(['.*'], ['direct_message', 'direct_mention', 'mention', 'ambient'], function (bot, message) {
 
-    console.log(message.text);
-
-    if (message.type == 'message') {
-        if (message.user == bot.identity.id) {
-            // message from bot can be skipped
-        }
-        else if (message.text.indexOf("<@U") == 0 && message.text.indexOf(bot.identity.id) == -1) {
-            // skip other users direct mentions
-        }
-        else {
-            var requestText = decoder.decode(message.text);
-            requestText = requestText.replace("’", "'");
-
-            var channel = message.channel;
-            var messageType = message.event;
-            var botId = "<@" + bot.identity.id + ">";
-
-            console.log(messageType);
-
-            if (requestText.indexOf(botId) > -1) {
-                requestText = requestText.replace(botId, '');
+    try {
+        if (message.type == 'message') {
+            if (message.user == bot.identity.id) {
+                // message from bot can be skipped
             }
-
-            if (!(channel in sessionIds)) {
-                sessionIds[channel] = uuid.v1();
+            else if (message.text.indexOf("<@U") == 0 && message.text.indexOf(bot.identity.id) == -1) {
+                // skip other users direct mentions
             }
+            else {
 
-            var request = apiAiService.textRequest(requestText,
-                {
-                    sessionId: sessionIds[channel]
+                var requestText = decoder.decode(message.text);
+                requestText = requestText.replace("’", "'");
+
+                var channel = message.channel;
+                var messageType = message.event;
+                var botId = "<@" + bot.identity.id + ">";
+
+                console.log(requestText);
+                console.log(messageType);
+
+                if (requestText.indexOf(botId) > -1) {
+                    requestText = requestText.replace(botId, '');
+                }
+
+                if (!(channel in sessionIds)) {
+                    sessionIds[channel] = uuid.v1();
+                }
+
+                var request = apiAiService.textRequest(requestText,
+                    {
+                        sessionId: sessionIds[channel]
+                    });
+
+                request.on('response', function (response) {
+                    console.log(response);
+
+                    if (isDefined(response.result)) {
+                        var responseText = response.result.fulfillment.speech;
+                        var action = response.result.action;
+
+                        if (isDefined(responseText)) {
+                            bot.reply(message, responseText, function(err,resp) {
+                                console.log(err,resp);
+                            });
+                        }
+
+                    }
                 });
 
-            request.on('response', function (response) {
-                console.log(response);
+                request.on('error', function (error) {
+                    console.error(error);
+                });
 
-                if (isDefined(response.result)) {
-                    var responseText = response.result.fulfillment.speech;
-                    var action = response.result.action;
-
-                    if (isDefined(responseText)) {
-                        bot.reply(message, responseText);
-                    }
-
-                }
-            });
-
-            request.on('error', function (error) {
-                console.log(error);
-            });
-
-            request.end();
+                request.end();
+            }
         }
+    } catch (err) {
+        console.error(err);
     }
+
 });
