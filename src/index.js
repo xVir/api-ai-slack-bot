@@ -21,9 +21,17 @@ const apiAiAccessToken = process.env.accesstoken;
 const apiAiSubscriptionKey = process.env.subscriptionkey;
 const slackBotKey = process.env.slackkey;
 
-const apiAiService = apiai(apiAiAccessToken, apiAiSubscriptionKey);
+const devConfig = process.env.DEVELOPMENT_CONFIG == 'true';
 
-var sessionIds = {};
+const apiaiOptions = {};
+if (devConfig) {
+    apiaiOptions.hostname = process.env.DEVELOPMENT_HOST;
+    apiaiOptions.path = "/api/query";
+}
+
+const apiAiService = apiai(apiAiAccessToken, apiAiSubscriptionKey, apiaiOptions);
+
+const sessionIds = new Map();
 
 const controller = Botkit.slackbot({
     debug: false
@@ -46,8 +54,7 @@ function isDefined(obj) {
     return obj != null;
 }
 
-controller.hears(['.*'], ['direct_message', 'direct_mention', 'mention', 'ambient'], function (bot, message) {
-
+controller.hears(['.*'], ['direct_message', 'direct_mention', 'mention', 'ambient'], (bot, message) => {
     try {
         if (message.type == 'message') {
             if (message.user == bot.identity.id) {
@@ -58,12 +65,12 @@ controller.hears(['.*'], ['direct_message', 'direct_mention', 'mention', 'ambien
             }
             else {
 
-                var requestText = decoder.decode(message.text);
+                let requestText = decoder.decode(message.text);
                 requestText = requestText.replace("’", "'");
 
-                var channel = message.channel;
-                var messageType = message.event;
-                var botId = "<@" + bot.identity.id + ">";
+                let channel = message.channel;
+                let messageType = message.event;
+                let botId = '<@' + bot.identity.id + '>';
 
                 console.log(requestText);
                 console.log(messageType);
@@ -72,51 +79,46 @@ controller.hears(['.*'], ['direct_message', 'direct_mention', 'mention', 'ambien
                     requestText = requestText.replace(botId, '');
                 }
 
-                if (!(channel in sessionIds)) {
-                    sessionIds[channel] = uuid.v1();
+                if (!sessionIds.has(channel)) {
+                    sessionIds.set(channel, uuid.v1());
                 }
 
-                var request = apiAiService.textRequest(requestText,
+                console.log('Start request ', requestText);
+                let request = apiAiService.textRequest(requestText,
                     {
-                        sessionId: sessionIds[channel]
+                        sessionId: sessionIds.get(channel)
                     });
 
-                request.on('response', function (response) {
+                request.on('response', (response) => {
                     console.log(response);
 
                     if (isDefined(response.result)) {
-                        var responseText = response.result.fulfillment.speech;
-                        var action = response.result.action;
+                        let responseText = response.result.fulfillment.speech;
+                        let action = response.result.action;
 
                         if (isDefined(responseText)) {
-                            bot.reply(message, responseText, function (err, resp) {
-                                console.log(err, resp);
+                            bot.reply(message, responseText, (err, resp) => {
+                                if (err) {
+                                    console.error(err);
+                                }
                             });
                         }
 
                     }
                 });
 
-                request.on('error', function (error) {
-                    console.error(error);
-                });
-
+                request.on('error', (error) => console.error(error));
                 request.end();
             }
         }
     } catch (err) {
         console.error(err);
     }
-
 });
 
 
 //Create a server to prevent Heroku kills the bot
-var server = http.createServer(function (req, res) {
-    res.end()
-});
+const server = http.createServer((req, res) => res.end());
 
 //Lets start our server
-server.listen((process.env.PORT || 5000), function () {
-    console.log("Server listening");
-});
+server.listen((process.env.PORT || 5000), () => console.log("Server listening"));
