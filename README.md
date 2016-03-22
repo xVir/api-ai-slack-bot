@@ -8,6 +8,7 @@ Source code location: https://github.com/xVir/api-ai-slack-bot
 
 Docker image location: https://hub.docker.com/r/xvir/api-ai-slack-bot/
 
+For fastest launching you can use **Heroku** service with the button below
 [![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
 To launch a bot, you’ll need the Linux OS. To launch it in other operating systems, use [Docker Toolbox](https://www.docker.com/products/docker-toolbox).
