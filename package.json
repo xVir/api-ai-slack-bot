@@ -10,8 +10,8 @@
   "author": "Danil Skachkov <danil.skachkov@speaktoit.com> (https://api.ai)",
   "license": "ISC",
   "dependencies": {
-    "apiai": "^1.0.5",
-    "botkit": "0.0.7",
+    "apiai": "^1.0.8",
+    "botkit": "0.0.12",
     "html-entities": "^1.2.0",
     "node-uuid": "^1.4.7"
   }
