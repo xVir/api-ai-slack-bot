@@ -2,7 +2,7 @@
   "name": "API.AI with Slack integration",
   "description": "Api.ai Slack integration allows you to create Slack bots with natural language understanding based on Api.ai technology.",
   "repository": "https://github.com/xVir/api-ai-slack-bot",
-  "logo": "https://node-js-sample.herokuapp.com/node.png",
+  "logo": "http://xvir.github.io/img/apiai.png",
   "keywords": ["api.ai", "slack", "natural language"],
   "env": {
     "accesstoken": {
