@@ -17,5 +17,8 @@
       "description": "Slack bot API token",
       "value": ""
     }
+  },
+  "engines": {
+    "node": "5.9.0"
   }
 }
