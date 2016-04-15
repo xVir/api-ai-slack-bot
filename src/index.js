@@ -1,7 +1,6 @@
 // Module must be started with environment variables
 //
 //  accesskey="api.ai client access key"
-//  subscriptionkey="api.ai subscription key"
 //  slackkey="slack bot key"
 //
 
@@ -18,7 +17,6 @@ const Entities = require('html-entities').XmlEntities;
 const decoder = new Entities();
 
 const apiAiAccessToken = process.env.accesstoken;
-const apiAiSubscriptionKey = process.env.subscriptionkey;
 const slackBotKey = process.env.slackkey;
 
 const devConfig = process.env.DEVELOPMENT_CONFIG == 'true';
@@ -29,7 +27,7 @@ if (devConfig) {
     apiaiOptions.path = "/api/query";
 }
 
-const apiAiService = apiai(apiAiAccessToken, apiAiSubscriptionKey, apiaiOptions);
+const apiAiService = apiai(apiAiAccessToken, apiaiOptions);
 
 const sessionIds = new Map();
 

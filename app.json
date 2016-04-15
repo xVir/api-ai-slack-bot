@@ -9,10 +9,6 @@
       "description": "Client access token for Api.ai",
       "value": ""
     },
-    "subscriptionkey": {
-      "description": "Subscription key for Api.ai",
-      "value": ""
-    },
     "slackkey": {
       "description": "Slack bot API token",
       "value": ""
