@@ -69,6 +69,7 @@ controller.hears(['.*'], ['direct_message', 'direct_mention', 'mention', 'ambien
                 let channel = message.channel;
                 let messageType = message.event;
                 let botId = '<@' + bot.identity.id + '>';
+                let userId = message.user;
 
                 console.log(requestText);
                 console.log(messageType);
@@ -84,7 +85,16 @@ controller.hears(['.*'], ['direct_message', 'direct_mention', 'mention', 'ambien
                 console.log('Start request ', requestText);
                 let request = apiAiService.textRequest(requestText,
                     {
-                        sessionId: sessionIds.get(channel)
+                        sessionId: sessionIds.get(channel),
+                        contexts: [
+                            {
+                                name: "generic",
+                                parameters: {
+                                    slack_user_id: userId,
+                                    slack_channel: channel
+                                }
+                            }
+                        ]
                     });
 
                 request.on('response', (response) => {
@@ -92,9 +102,16 @@ controller.hears(['.*'], ['direct_message', 'direct_mention', 'mention', 'ambien
 
                     if (isDefined(response.result)) {
                         let responseText = response.result.fulfillment.speech;
+                        let responseData = response.result.fulfillment.data;
                         let action = response.result.action;
 
-                        if (isDefined(responseText)) {
+                        if (isDefined(responseData) && isDefined(responseData.slack)) {
+                            try{
+                                bot.reply(message, responseData.slack);
+                            } catch (err) {
+                                bot.reply(message, err.message);
+                            }
+                        } else if (isDefined(responseText)) {
                             bot.reply(message, responseText, (err, resp) => {
                                 if (err) {
                                     console.error(err);
