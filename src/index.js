@@ -52,80 +52,102 @@ function isDefined(obj) {
     return obj != null;
 }
 
-controller.hears(['.*'], ['direct_message', 'direct_mention', 'mention', 'ambient'], (bot, message) => {
+function messageIsFromThisBot(message) {
+    return message.user == bot.identity.id;
+}
+
+function messageIsDirectMention(message) {
+    return message.text.indexOf("<@U") == 0 && message.text.indexOf(bot.identity.id) == -1;
+}
+
+controller.hears(['.*'], ['direct_message', 'direct_mention', 'mention', 'ambient', 'bot_message'], (bot, message) => {
     try {
-        if (message.type == 'message') {
-            if (message.user == bot.identity.id) {
-                // message from bot can be skipped
-            }
-            else if (message.text.indexOf("<@U") == 0 && message.text.indexOf(bot.identity.id) == -1) {
-                // skip other users direct mentions
-            }
-            else {
+        if (message.type != 'message') {
+            console.log(`(message=${JSON.stringify(message)}): skipping incorrect message type ${message.type}`);
+            return;
+        }
 
-                let requestText = decoder.decode(message.text);
-                requestText = requestText.replace("’", "'");
+        if (messageIsFromThisBot(message)) {
+            return;
+        }
 
-                let channel = message.channel;
-                let messageType = message.event;
-                let botId = '<@' + bot.identity.id + '>';
-                let userId = message.user;
+        if (messageIsDirectMention(message)) {
+            return;
+        }
 
-                console.log(requestText);
-                console.log(messageType);
+        let requestText = decoder.decode(message.text);
+        requestText = requestText.replace("’", "'");
 
-                if (requestText.indexOf(botId) > -1) {
-                    requestText = requestText.replace(botId, '');
-                }
+        let channel = message.channel;
+        let messageType = message.event;
+        let botId = '<@' + bot.identity.id + '>';
+        let userId = message.user;
 
-                if (!sessionIds.has(channel)) {
-                    sessionIds.set(channel, uuid.v1());
-                }
+        console.log(`(message=${JSON.stringify(message)}): processing Slack message`);
+        console.log(`(requestText=${requestText}): processing request text`);
 
-                console.log('Start request ', requestText);
-                let request = apiAiService.textRequest(requestText,
+        if (requestText.indexOf(botId) > -1) {
+            requestText = requestText.replace(botId, '');
+        }
+
+        if (!sessionIds.has(channel)) {
+            sessionIds.set(channel, uuid.v1());
+        }
+
+        let request = apiAiService.textRequest(requestText,
+            {
+                sessionId: sessionIds.get(channel),
+                contexts: [
                     {
-                        sessionId: sessionIds.get(channel),
-                        contexts: [
-                            {
-                                name: "generic",
-                                parameters: {
-                                    slack_user_id: userId,
-                                    slack_channel: channel
-                                }
-                            }
-                        ]
-                    });
-
-                request.on('response', (response) => {
-                    console.log(response);
-
-                    if (isDefined(response.result)) {
-                        let responseText = response.result.fulfillment.speech;
-                        let responseData = response.result.fulfillment.data;
-                        let action = response.result.action;
-
-                        if (isDefined(responseData) && isDefined(responseData.slack)) {
-                            try{
-                                bot.reply(message, responseData.slack);
-                            } catch (err) {
-                                bot.reply(message, err.message);
-                            }
-                        } else if (isDefined(responseText)) {
-                            bot.reply(message, responseText, (err, resp) => {
-                                if (err) {
-                                    console.error(err);
-                                }
-                            });
+                        name: "generic",
+                        parameters: {
+                            slack_user_id: userId,
+                            slack_channel: channel
                         }
+                    }
+                ]
+            });
 
+        request.on('response', (response) => {
+            console.log(`(response=${JSON.stringify(response)}: received API.AI response`);
+
+            if (!isDefined(response.result)) {
+                console.error('response result was not defined');
+                return;
+            }
+
+            let responseText = response.result.fulfillment.speech;
+            let responseData = response.result.fulfillment.data;
+            let action = response.result.action;
+
+            if ((!isDefined(responseData) || !isDefined(responseData.slack))) {
+
+                if (!isDefined(responseText)) {
+                    console.error(`(${JSON.stringify(response)}): response had no response text`);
+                    return;
+                }
+
+                bot.reply(message, responseText, (err, resp) => {
+                    if (err) {
+                        console.error(`(response=${JSON.stringify(response)}): response had no data and slack data but had response text ${responseText}`, err);
                     }
                 });
 
-                request.on('error', (error) => console.error(error));
-                request.end();
+                return;
             }
-        }
+
+            try {
+                bot.reply(message, responseData.slack);
+                console.log(`(${responseData.slack}): bot replied with message`);
+            } catch (err) {
+                bot.reply(message, err.message);
+                console.error(`(${err.message}): bot replied with error`, err);
+            }
+
+        });
+
+        request.on('error', (error) => console.error(error));
+        request.end();
     } catch (err) {
         console.error(err);
     }
@@ -136,4 +158,4 @@ controller.hears(['.*'], ['direct_message', 'direct_mention', 'mention', 'ambien
 const server = http.createServer((req, res) => res.end());
 
 //Lets start our server
-server.listen((process.env.PORT || 5000), () => console.log("Server listening"));
+server.listen((process.env.PORT || 5000), () => console.log("Listening for chats"));
