@@ -109,28 +109,38 @@ controller.hears(['.*'], ['direct_message', 'direct_mention', 'mention', 'ambien
             });
 
         request.on('response', (response) => {
-            console.log(response);
+            console.log(`(response=${JSON.stringify(response)}: received API.AI response`);
 
-            if (isDefined(response.result)) {
-                let responseText = response.result.fulfillment.speech;
-                let responseData = response.result.fulfillment.data;
-                let action = response.result.action;
-
-                if (isDefined(responseData) && isDefined(responseData.slack)) {
-                    try {
-                        bot.reply(message, responseData.slack);
-                    } catch (err) {
-                        bot.reply(message, err.message);
-                    }
-                } else if (isDefined(responseText)) {
-                    bot.reply(message, responseText, (err, resp) => {
-                        if (err) {
-                            console.error(err);
-                        }
-                    });
-                }
-
+            if (!isDefined(response.result)) {
+                console.error('response result was not defined');
+                return;
             }
+
+            let responseText = response.result.fulfillment.speech;
+            let responseData = response.result.fulfillment.data;
+            let action = response.result.action;
+
+            if ((!isDefined(responseData) || !isDefined(responseData.slack)) && isDefined(responseText)) {
+                console.error(`(response=${JSON.stringify(response)}): response had no data and slack data but had response text ${responseText}`, err);
+
+                bot.reply(message, responseText, (err, resp) => {
+                    if (err) {
+                        console.error(`(response=${JSON.stringify(response)}): response had no data and slack data but had response text ${responseText}`, err);
+
+                    }
+                });
+
+                return;
+            }
+
+            try {
+                bot.reply(message, responseData.slack);
+                console.log(`(${responseData.slack}): bot replied with message`);
+            } catch (err) {
+                bot.reply(message, err.message);
+                console.error(`(${err.message}): bot replied with error`, err);
+            }
+
         });
 
         request.on('error', (error) => console.error(error));
