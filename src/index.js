@@ -75,8 +75,6 @@ controller.hears(['.*'], ['direct_message', 'direct_mention', 'mention', 'ambien
             return;
         }
 
-        console.log(`(message=${message}): processing Slack message`);
-
         let requestText = decoder.decode(message.text);
         requestText = requestText.replace("’", "'");
 
@@ -85,8 +83,8 @@ controller.hears(['.*'], ['direct_message', 'direct_mention', 'mention', 'ambien
         let botId = '<@' + bot.identity.id + '>';
         let userId = message.user;
 
-        console.log(requestText);
-        console.log(messageType);
+        console.log(`(message=${message}): processing Slack message`);
+        console.log(`(requestText=${requestText}): processing request text`);
 
         if (requestText.indexOf(botId) > -1) {
             requestText = requestText.replace(botId, '');
@@ -96,7 +94,6 @@ controller.hears(['.*'], ['direct_message', 'direct_mention', 'mention', 'ambien
             sessionIds.set(channel, uuid.v1());
         }
 
-        console.log(`(requestText=${requestText}): handling text`);
         let request = apiAiService.textRequest(requestText,
             {
                 sessionId: sessionIds.get(channel),
