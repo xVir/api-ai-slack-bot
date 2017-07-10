@@ -75,6 +75,7 @@ controller.hears(['.*'], ['direct_message', 'direct_mention', 'mention', 'ambien
             return;
         }
 
+        console.log(`(message=${message}): processing Slack message`);
 
         let requestText = decoder.decode(message.text);
         requestText = requestText.replace("’", "'");
