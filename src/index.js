@@ -120,13 +120,16 @@ controller.hears(['.*'], ['direct_message', 'direct_mention', 'mention', 'ambien
             let responseData = response.result.fulfillment.data;
             let action = response.result.action;
 
-            if ((!isDefined(responseData) || !isDefined(responseData.slack)) && isDefined(responseText)) {
-                console.error(`(response=${JSON.stringify(response)}): response had no data and slack data but had response text ${responseText}`, err);
+            if ((!isDefined(responseData) || !isDefined(responseData.slack))) {
+
+                if (!isDefined(responseText)) {
+                    console.error(`(${JSON.stringify(response)}): response had no response text`);
+                    return;
+                }
 
                 bot.reply(message, responseText, (err, resp) => {
                     if (err) {
                         console.error(`(response=${JSON.stringify(response)}): response had no data and slack data but had response text ${responseText}`, err);
-
                     }
                 });
 
