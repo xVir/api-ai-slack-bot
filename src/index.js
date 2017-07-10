@@ -63,7 +63,7 @@ function messageIsDirectMention(message) {
 controller.hears(['.*'], ['direct_message', 'direct_mention', 'mention', 'ambient', 'bot_message'], (bot, message) => {
     try {
         if (message.type != 'message') {
-            console.log(`(message=${message}): skipping incorrect message type ${message.type}`);
+            console.log(`(message=${JSON.stringify(message)}): skipping incorrect message type ${message.type}`);
             return;
         }
 
@@ -83,7 +83,7 @@ controller.hears(['.*'], ['direct_message', 'direct_mention', 'mention', 'ambien
         let botId = '<@' + bot.identity.id + '>';
         let userId = message.user;
 
-        console.log(`(message=${message}): processing Slack message`);
+        console.log(`(message=${JSON.stringify(message)}): processing Slack message`);
         console.log(`(requestText=${requestText}): processing request text`);
 
         if (requestText.indexOf(botId) > -1) {
