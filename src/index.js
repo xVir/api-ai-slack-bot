@@ -75,6 +75,7 @@ controller.hears(['.*'], ['direct_message', 'direct_mention', 'mention', 'ambien
             return;
         }
 
+
         let requestText = decoder.decode(message.text);
         requestText = requestText.replace("’", "'");
 
@@ -94,7 +95,7 @@ controller.hears(['.*'], ['direct_message', 'direct_mention', 'mention', 'ambien
             sessionIds.set(channel, uuid.v1());
         }
 
-        console.log('Start request ', requestText);
+        console.log(`(requestText=${requestText}): handling text`);
         let request = apiAiService.textRequest(requestText,
             {
                 sessionId: sessionIds.get(channel),
