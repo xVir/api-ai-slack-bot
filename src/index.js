@@ -52,80 +52,89 @@ function isDefined(obj) {
     return obj != null;
 }
 
-controller.hears(['.*'], ['direct_message', 'direct_mention', 'mention', 'ambient'], (bot, message) => {
+function messageIsFromThisBot(message) {
+    return message.user == bot.identity.id;
+}
+
+function messageIsDirectMention(message) {
+    return message.text.indexOf("<@U") == 0 && message.text.indexOf(bot.identity.id) == -1;
+}
+
+controller.hears(['.*'], ['direct_message', 'direct_mention', 'mention', 'ambient', 'bot_message'], (bot, message) => {
     try {
-        if (message.type == 'message') {
-            if (message.user == bot.identity.id) {
-                // message from bot can be skipped
-            }
-            else if (message.text.indexOf("<@U") == 0 && message.text.indexOf(bot.identity.id) == -1) {
-                // skip other users direct mentions
-            }
-            else {
-
-                let requestText = decoder.decode(message.text);
-                requestText = requestText.replace("’", "'");
-
-                let channel = message.channel;
-                let messageType = message.event;
-                let botId = '<@' + bot.identity.id + '>';
-                let userId = message.user;
-
-                console.log(requestText);
-                console.log(messageType);
-
-                if (requestText.indexOf(botId) > -1) {
-                    requestText = requestText.replace(botId, '');
-                }
-
-                if (!sessionIds.has(channel)) {
-                    sessionIds.set(channel, uuid.v1());
-                }
-
-                console.log('Start request ', requestText);
-                let request = apiAiService.textRequest(requestText,
-                    {
-                        sessionId: sessionIds.get(channel),
-                        contexts: [
-                            {
-                                name: "generic",
-                                parameters: {
-                                    slack_user_id: userId,
-                                    slack_channel: channel
-                                }
-                            }
-                        ]
-                    });
-
-                request.on('response', (response) => {
-                    console.log(response);
-
-                    if (isDefined(response.result)) {
-                        let responseText = response.result.fulfillment.speech;
-                        let responseData = response.result.fulfillment.data;
-                        let action = response.result.action;
-
-                        if (isDefined(responseData) && isDefined(responseData.slack)) {
-                            try{
-                                bot.reply(message, responseData.slack);
-                            } catch (err) {
-                                bot.reply(message, err.message);
-                            }
-                        } else if (isDefined(responseText)) {
-                            bot.reply(message, responseText, (err, resp) => {
-                                if (err) {
-                                    console.error(err);
-                                }
-                            });
-                        }
-
-                    }
-                });
-
-                request.on('error', (error) => console.error(error));
-                request.end();
-            }
+        if (message.type != 'message') {
+            console.log(`(message=${message}): skipping incorrect message type ${message.type}`);
+            return;
         }
+
+        if (messageIsFromThisBot(message)) {
+            return;
+        }
+
+        if (messageIsDirectMention(message)) {
+            return;
+        }
+
+        let requestText = decoder.decode(message.text);
+        requestText = requestText.replace("’", "'");
+
+        let channel = message.channel;
+        let messageType = message.event;
+        let botId = '<@' + bot.identity.id + '>';
+        let userId = message.user;
+
+        console.log(`(message=${message}): processing Slack message`);
+        console.log(`(requestText=${requestText}): processing request text`);
+
+        if (requestText.indexOf(botId) > -1) {
+            requestText = requestText.replace(botId, '');
+        }
+
+        if (!sessionIds.has(channel)) {
+            sessionIds.set(channel, uuid.v1());
+        }
+
+        let request = apiAiService.textRequest(requestText,
+            {
+                sessionId: sessionIds.get(channel),
+                contexts: [
+                    {
+                        name: "generic",
+                        parameters: {
+                            slack_user_id: userId,
+                            slack_channel: channel
+                        }
+                    }
+                ]
+            });
+
+        request.on('response', (response) => {
+            console.log(response);
+
+            if (isDefined(response.result)) {
+                let responseText = response.result.fulfillment.speech;
+                let responseData = response.result.fulfillment.data;
+                let action = response.result.action;
+
+                if (isDefined(responseData) && isDefined(responseData.slack)) {
+                    try {
+                        bot.reply(message, responseData.slack);
+                    } catch (err) {
+                        bot.reply(message, err.message);
+                    }
+                } else if (isDefined(responseText)) {
+                    bot.reply(message, responseText, (err, resp) => {
+                        if (err) {
+                            console.error(err);
+                        }
+                    });
+                }
+
+            }
+        });
+
+        request.on('error', (error) => console.error(error));
+        request.end();
     } catch (err) {
         console.error(err);
     }
@@ -136,4 +145,4 @@ controller.hears(['.*'], ['direct_message', 'direct_mention', 'mention', 'ambien
 const server = http.createServer((req, res) => res.end());
 
 //Lets start our server
-server.listen((process.env.PORT || 5000), () => console.log("Server listening"));
+server.listen((process.env.PORT || 5000), () => console.log("Listening for chats"));
